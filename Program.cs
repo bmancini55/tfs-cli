@@ -8,48 +8,92 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tfs_Cli.Queries;
 
-namespace tfs_cli
+namespace Tfs_Cli
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var collection = GetCollection("FTICollection");
-            var builds = GetBuilds(collection, "Ringtail", "LHOTSEFIX Ringtail8 Daily");
-
-            foreach (var build in builds)
+            var options = new Options();
+            if (CommandLine.Parser.Default.ParseArguments(args, options))
             {
-                Console.WriteLine(build);
+                Runner(options);
+            }           
+        }               
+
+        static void Runner(Options options) {
+            var queryFactory = new QueryFactory();
+            switch (options.Action.ToLower())
+            {
+                case "build-defs":
+                    {
+                        var collectionQuery = queryFactory.CreateCollectionQuery(options);
+                        var collection = collectionQuery.Execute();
+
+                        var buildDefinitionsQuery = queryFactory.CreateBuildDefinitionsQuery(collection, options);
+                        var buildDefinitions = buildDefinitionsQuery.Execute();
+
+                        foreach (var buildDefinition in buildDefinitions)
+                        {
+                            Output(buildDefinition);
+                        }
+                    }
+                    break;
+                case "build-success":
+                    {
+                        var collectionQuery = queryFactory.CreateCollectionQuery(options);
+                        var collection = collectionQuery.Execute();
+
+                        var buildDefinitionsQuery = queryFactory.CreateBuildDefinitionsQuery(collection, options);
+                        var buildDefinitions = buildDefinitionsQuery.Execute();
+
+                        foreach (var buildDefinition in buildDefinitions)
+                        {
+                            var buildsQuery = queryFactory.CreateBuildsQuery(buildDefinition, options);
+                            var builds = buildsQuery.Execute();
+                            var lastSuccessfulBuild = builds
+                                .Where(p => p.Status == BuildStatus.Succeeded)
+                                .OrderBy(p => p.FinishTime)
+                                .FirstOrDefault();
+
+                            Output(lastSuccessfulBuild);
+                        }
+                    }
+                    break;
             }
         }
 
-        static TfsTeamProjectCollection GetCollection(string collectionName)
+        static void Output(IBuildDefinition buildDefinition)
         {
-            Uri tfsUri = new Uri("http://tfs2012.dev.tech.local:8080/tfs");
-            TfsConfigurationServer configurationServer = TfsConfigurationServerFactory.GetConfigurationServer(tfsUri);
-
-            ReadOnlyCollection<CatalogNode> collectionNodes = configurationServer.CatalogNode.QueryChildren(
-                new[] { CatalogResourceTypes.ProjectCollection },
-                false, CatalogQueryOptions.None);
-
-            var collectionNode = collectionNodes.FirstOrDefault(p => p.Resource.DisplayName == collectionName);
-            if (collectionNode != null)
+            if(buildDefinition != null)
             {
-                Guid collectionId = new Guid(collectionNode.Resource.Properties["InstanceId"]);
-                TfsTeamProjectCollection teamProjectCollection = configurationServer.GetTeamProjectCollection(collectionId);
-                return teamProjectCollection;
+                var obj = new
+                {
+                    Name = buildDefinition.Name
+                };
+
+                Console.WriteLine(obj);
             }
-            return null;
         }
 
-        static List<IBuildDetail> GetBuilds(TfsTeamProjectCollection projectCollection, string project, string definition)
+        static void Output(IBuildDetail build) 
         {
-            var buildServer = (IBuildServer)projectCollection.GetService(typeof(IBuildServer));
-            var buildDefinition = buildServer.GetBuildDefinition(project, definition);
-            var builds = buildDefinition.QueryBuilds();
-            return builds.ToList();
-        }
+            if (build != null)
+            {
+                var obj = new
+                {
+                    Definition = build.BuildDefinition.Name,
+                    BuildNumber = build.BuildNumber,
+                    DropLocation = build.DropLocation,
+                    Status = build.Status,
+                    StartTime = build.StartTime,
+                    FinishTime = build.FinishTime,
+                };
 
+                Console.WriteLine(obj);
+            }
+        }
     }
 }
