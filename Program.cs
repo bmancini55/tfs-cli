@@ -6,8 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.SelfHost;
 using Tfs_Cli.Queries;
 
 namespace Tfs_Cli
@@ -19,11 +22,39 @@ namespace Tfs_Cli
             var options = new Options();
             if (CommandLine.Parser.Default.ParseArguments(args, options))
             {
-                Runner(options);
+                if (options.Daemon)
+                {
+                    StartDaemon(options);
+                }
+                else
+                {
+                    ActionRunner(options);
+                }
             }           
-        }               
+        }   
+        
+        static void StartDaemon(Options options)
+        {
+            var address = "http://localhost:3456";
+            var config = new HttpSelfHostConfiguration(address);
+            config.Properties["Options"] = options;
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
+            config.Routes.MapHttpRoute(
+                name: "Default",
+                routeTemplate: "api/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
+            
 
-        static void Runner(Options options) {
+            var server = new HttpSelfHostServer(config);
+
+            server.OpenAsync().Wait();
+            Console.WriteLine("Listening on " + address);
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
+        }
+
+        static void ActionRunner(Options options) {
             var queryFactory = new QueryFactory();
             switch (options.Action.ToLower())
             {
