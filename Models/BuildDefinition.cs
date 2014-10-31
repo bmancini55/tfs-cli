@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TfsCli.Queries
+namespace TfsCli.Models
 {
-    public interface IQuery<T>
+    public class BuildDefinition
     {
-        T Execute();
+        public string Name { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tfs_Cli
+namespace TfsCli
 {
     public class Options
     {

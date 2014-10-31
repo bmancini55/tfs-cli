@@ -11,9 +11,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
-using Tfs_Cli.Queries;
+using System.Web.Script.Serialization;
+using TfsCli.Queries;
+using TfsCli.Queries.Model;
 
-namespace Tfs_Cli
+namespace TfsCli
 {
     class Program
     {
@@ -55,76 +57,33 @@ namespace Tfs_Cli
         }
 
         static void ActionRunner(Options options) {
-            var queryFactory = new QueryFactory();
+
             switch (options.Action.ToLower())
             {
                 case "build-defs":
                     {
-                        var collectionQuery = queryFactory.CreateCollectionQuery(options);
-                        var collection = collectionQuery.Execute();
-
-                        var buildDefinitionsQuery = queryFactory.CreateBuildDefinitionsQuery(collection, options);
-                        var buildDefinitions = buildDefinitionsQuery.Execute();
-
-                        foreach (var buildDefinition in buildDefinitions)
-                        {
-                            Output(buildDefinition);
-                        }
+                            
                     }
                     break;
-                case "build-success":
+                case "builds":
                     {
-                        var collectionQuery = queryFactory.CreateCollectionQuery(options);
-                        var collection = collectionQuery.Execute();
-
-                        var buildDefinitionsQuery = queryFactory.CreateBuildDefinitionsQuery(collection, options);
-                        var buildDefinitions = buildDefinitionsQuery.Execute();
-
-                        foreach (var buildDefinition in buildDefinitions)
-                        {
-                            var buildsQuery = queryFactory.CreateBuildsQuery(buildDefinition, options);
-                            var builds = buildsQuery.Execute();
-                            var lastSuccessfulBuild = builds
-                                .Where(p => p.Status == BuildStatus.Succeeded)
-                                .OrderBy(p => p.FinishTime)
-                                .FirstOrDefault();
-
-                            Output(lastSuccessfulBuild);
-                        }
+                        
+                    }
+                    break;
+                case "last-build":
+                    {
+                        var query = new LastSuccessfulBuildQuery(options.TfsUri, options.Collection, options.Project, options.BuildDefinition);
+                        var build = query.Execute();
+                        Output(build);
                     }
                     break;
             }
         }
 
-        static void Output(IBuildDefinition buildDefinition)
+        static void Output(object obj)
         {
-            if(buildDefinition != null)
-            {
-                var obj = new
-                {
-                    Name = buildDefinition.Name
-                };
-
-                Console.WriteLine(obj);
-            }
-        }
-
-        static void Output(IBuildDetail build) 
-        {
-            if (build != null)
-            {
-                var obj = new
-                {
-                    Definition = build.BuildDefinition.Name,
-                    BuildNumber = build.BuildNumber,
-                    DropLocation = build.DropLocation,
-                    Status = build.Status,
-                    StartTime = build.StartTime,
-                    FinishTime = build.FinishTime,
-                };
-
-                Console.WriteLine(obj);
-            }
+            var output = new JavaScriptSerializer().Serialize(obj);
+            Console.WriteLine(output);
         }
     }
 }
