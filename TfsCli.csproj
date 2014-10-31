@@ -77,6 +77,7 @@
     <Compile Include="Models\BuildDefinition.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Queries\Model\BuildDefinitionsQuery.cs" />
     <Compile Include="Queries\Model\BuildsQuery.cs" />
     <Compile Include="Queries\Tfs\TfsBuildDefinitionsQuery.cs" />
     <Compile Include="Queries\Tfs\TfsBuildsQuery.cs" />

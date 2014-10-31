@@ -61,9 +61,13 @@ namespace TfsCli
 
             switch (options.Action.ToLower())
             {
-                case "build-defs":
+                case "builddefs":
                     {
-                            
+                        var name = options.BuildDefinition ?? "*";
+                        name = name.EndsWith("*") ? name : name += "*";
+                        var query = new BuildDefinitionsQuery(options.TfsUri, options.Collection, options.Project, name);
+                        var results = query.Execute();
+                        Output(results);
                     }
                     break;
                 case "builds":
@@ -73,7 +77,7 @@ namespace TfsCli
                         Output(builds);
                     }
                     break;
-                case "last-build":
+                case "builds-last":
                     {
                         var query = new LastBuildQuery(options.TfsUri, options.Collection, options.Project, options.BuildDefinition);
                         var build = query.Execute();

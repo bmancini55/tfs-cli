@@ -5,25 +5,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using TfsCli.Models;
+using TfsCli.Queries.Model;
 
 namespace TfsCli.Daemon.Controllers
 {
     public class BuildDefinitionsController : BaseController
     {
-        //public IEnumerable<object> GetBuildDefinitionsByName(string name)
-        //{
-        //    var queryFactory = new QueryFactory();
-            
-        //    var collectionQuery = queryFactory.CreateCollectionQuery(this.Options);
-        //    var collection = collectionQuery.Execute();
+        [HttpGet]
+        public IEnumerable<BuildDefinition> GetAllBuildDefinitions(string collection, string project)
+        {
+            var query = new BuildDefinitionsQuery(this.TfsUri, collection, project, "*");
+            var results = query.Execute();
+            return results;
+        }
 
-        //    var buildDefinitionsQuery = queryFactory.CreateBuildDefinitionsQuery(collection, this.Options);
-        //    var buildDefinitions = buildDefinitionsQuery.Execute();
-
-        //    return buildDefinitions.Select(p => new
-        //    {
-        //        Name = p.Name
-        //    });
-        //}
+        [HttpGet]
+        public IEnumerable<BuildDefinition> GetBuildDefinitions(string collection, string project, string name)        
+        {
+            if (!name.EndsWith("*")) name += "*";
+            var query = new BuildDefinitionsQuery(this.TfsUri, collection, project, name);
+            var results = query.Execute();
+            return results;
+        }
     }
 }
