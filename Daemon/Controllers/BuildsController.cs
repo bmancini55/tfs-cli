@@ -11,9 +11,18 @@ using TfsCli.Queries.Model;
 namespace TfsCli.Daemon.Controllers
 {
     public class BuildsController : BaseController
-    {
-        public Build GetBuilds(string collection, string project, string buildDefinition)
+    {       
+        [HttpGet]
+        public IEnumerable<Build> GetBuilds(string collection, string project, string buildDefinition)
         {            
+            var query = new BuildsQuery(this.TfsUri, collection, project, buildDefinition);
+            var results = query.Execute();
+            return results;
+        }
+
+        [HttpGet]
+        public Build GetLatestBuild(string collection, string project, string buildDefinition, bool latest)
+        {
             var query = new LastBuildQuery(this.TfsUri, collection, project, buildDefinition);
             var result = query.Execute();
             return result;

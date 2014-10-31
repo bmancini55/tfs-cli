@@ -42,6 +42,11 @@ namespace TfsCli
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+            config.Routes.MapHttpRoute(
+                name: "ProjectRoute",
+                routeTemplate: "api/{collection}/{project}/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
             
 
             var server = new HttpSelfHostServer(config);
