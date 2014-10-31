@@ -13,17 +13,17 @@ namespace TfsCli.Daemon.Controllers
     public class BuildsController : BaseController
     {       
         [HttpGet]
-        public IEnumerable<Build> GetBuilds(string collection, string project, string buildDefinition)
-        {            
-            var query = new BuildsQuery(this.TfsUri, collection, project, buildDefinition);
+        public IEnumerable<Build> GetBuilds(string collection, string project, string builddef)
+        {
+            var query = new BuildsQuery(this.TfsUri, collection, project, builddef);
             var results = query.Execute();
             return results;
         }
 
         [HttpGet]
-        public Build GetLatestBuild(string collection, string project, string buildDefinition, bool latest)
+        public Build GetLatestBuild(string collection, string project, string builddef, bool latest)
         {
-            var query = new LastBuildQuery(this.TfsUri, collection, project, buildDefinition);
+            var query = new LastBuildQuery(this.TfsUri, collection, project, builddef);
             var result = query.Execute();
             return result;
         }
