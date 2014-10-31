@@ -14,7 +14,7 @@ namespace TfsCli.Daemon.Controllers
     {
         public Build GetBuilds(string collection, string project, string buildDefinition)
         {            
-            var query = new LastSuccessfulBuildQuery(this.TfsUri, collection, project, buildDefinition);
+            var query = new LastBuildQuery(this.TfsUri, collection, project, buildDefinition);
             var result = query.Execute();
             return result;
         }

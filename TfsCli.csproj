@@ -76,12 +76,13 @@
     <Compile Include="Models\BuildDefinition.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Queries\Model\BuildsQuery.cs" />
     <Compile Include="Queries\Tfs\TfsBuildDefinitionsQuery.cs" />
     <Compile Include="Queries\Tfs\TfsBuildsQuery.cs" />
     <Compile Include="Queries\Tfs\TfsCollectionQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\IQuery.cs" />
-    <Compile Include="Queries\Model\LastSuccessfulBuildQuery.cs" />
+    <Compile Include="Queries\Model\LastBuildQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -25,13 +25,9 @@ namespace TfsCli
             if (CommandLine.Parser.Default.ParseArguments(args, options))
             {
                 if (options.Daemon)
-                {
-                    StartDaemon(options);
-                }
-                else
-                {
-                    ActionRunner(options);
-                }
+                    StartDaemon(options);                
+                else                
+                    ActionRunner(options);                
             }           
         }   
         
@@ -67,12 +63,14 @@ namespace TfsCli
                     break;
                 case "builds":
                     {
-                        
+                        var query = new BuildsQuery(options.TfsUri, options.Collection, options.Project, options.BuildDefinition);
+                        var builds = query.Execute();
+                        Output(builds);
                     }
                     break;
                 case "last-build":
                     {
-                        var query = new LastSuccessfulBuildQuery(options.TfsUri, options.Collection, options.Project, options.BuildDefinition);
+                        var query = new LastBuildQuery(options.TfsUri, options.Collection, options.Project, options.BuildDefinition);
                         var build = query.Execute();
                         Output(build);
                     }
